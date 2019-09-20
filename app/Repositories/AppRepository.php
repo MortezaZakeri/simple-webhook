@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Repositories;
+
 use App\Repositories\Core\ExceptionDBLog;
 use App\Traits\ExceptionHandler;
 

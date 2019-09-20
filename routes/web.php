@@ -11,8 +11,9 @@
 |
 */
 
-use Illuminate\Support\Str;
 
-$router->get('/', function () use ($router) {
-    return Str::random(32);
+$router->group(['prefix' => 'api'], function ($router) {
+
+    $router->get('webhook', 'WebhookController@myWebhooks');
+
 });

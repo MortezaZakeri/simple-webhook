@@ -25,6 +25,11 @@ $app = new Laravel\Lumen\Application(
 
  $app->withEloquent();
 
+
+ ////////////////////// CONFIG FILES /////////////
+$app->configure('webhook');
+$app->configure('cache');
+
 /*
 |--------------------------------------------------------------------------
 | Register Container Bindings
