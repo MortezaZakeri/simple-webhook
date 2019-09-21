@@ -26,7 +26,7 @@ class WebhookController extends AppController {
      */
     public function create(Request $request) {
 
-        WebhookCall::make()
+         WebhookCall::make()
             //->addEndpoints('http://localhost:8081/test', 'test token')
             ->storedEndpoints()
             ->addVerb('POST')

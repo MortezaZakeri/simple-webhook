@@ -11,9 +11,16 @@
 |
 */
 
-$factory->define(App\User::class, function (Faker\Generator $faker) {
+
+use App\Models\Webhook;
+use App\Models\WebhookLog;
+
+
+$factory->define(WebhookLog::class, function (Faker\Generator $faker) {
     return [
-        'name' => $faker->name,
-        'email' => $faker->email,
+        'webhook_id' => random_int(1, 300),
+        'status_code' => $faker->randomKey([200, 400, 404, 500]),
+        'message' => $faker->text
     ];
 });
+

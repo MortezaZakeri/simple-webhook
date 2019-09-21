@@ -64,8 +64,12 @@ class WebhookEvent extends AppRepository {
     /* @var int , number of concurrence request , default is 10 in config file */
     public $concurrency;
 
-    public function handle() {
+    public function handle(): array {
         // guzzle request failed afterr
+        $status = [
+            'succeed' => 0,
+            'failed' => 0
+        ];
 
         try {
             // guzzle http client
@@ -88,11 +92,11 @@ class WebhookEvent extends AppRepository {
 
             $promisesResult = new EachPromise($promises, [
                 'concurrency' => $this->concurrency,
-                'fulfilled' => function ($responses, $pending) {
-
+                'fulfilled' => function ($responses, $pending) use ($status) {
+                    $status['succeed']++;
                 },
-                'rejected' => function () {
-
+                'rejected' => function () use ($status) {
+                    $status['failed']++;
                 }
             ]);
             $promisesResult->promise()->wait();
@@ -100,6 +104,7 @@ class WebhookEvent extends AppRepository {
         } catch (Exception $exception) {
             $this->handleException(__METHOD__, $exception, "Cannot call end point $this->url", 5);
         }
+        return $status;
     }
 
     private function makeDataOption(Webhook $endpoint): array {
