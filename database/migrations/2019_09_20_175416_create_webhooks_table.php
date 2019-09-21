@@ -17,7 +17,7 @@ class CreateWebhooksTable extends Migration {
             $table->text('url');
             $table->string('method', 10)->default('POST');
             $table->uuid('user_id');
-            $table->unique(['user_id', 'url', 'method']); //each user can register in one webhook by one method
+//            $table->unique(['user_id', 'url', 'method']); //each user can register in one webhook by one method
             $table->timestamps();
         });
     }

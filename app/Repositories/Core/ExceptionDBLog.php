@@ -10,6 +10,7 @@ namespace App\Repositories\Core;
 use App\Interfaces\ExceptionLogInterface;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use App\Models\Exception as ExceptionModel;
 
 class ExceptionDBLog implements ExceptionLogInterface {
 
@@ -24,7 +25,7 @@ class ExceptionDBLog implements ExceptionLogInterface {
     public function log(string $method, $exception, string $message = '', int $risk = 1): bool {
 
         try {
-            \App\Models\Exception::create([
+            ExceptionModel::create([
                 'method' => $method,
                 'message' => $exception->getMessage(),
                 'code' => $exception->getCode(),
@@ -32,8 +33,9 @@ class ExceptionDBLog implements ExceptionLogInterface {
                 'risk' => $risk,
             ]);
             return true;
-        } catch (Exception $exception) {
-            Log::log('DB', $exception->getMessage());
+        } catch (Exception $ex) {
+            // exception inside exception handler
+            Log::log('DB', $ex->getMessage());
             return false;
         }
     }

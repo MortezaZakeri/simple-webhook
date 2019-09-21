@@ -8,12 +8,13 @@ namespace App\Repositories\Webhook;
 
 use App\Repositories\AppRepository;
 
-class WebhookCallRepository extends AppRepository {
+class WebhookCall extends AppRepository {
 
 
     private $webhook;
 
     public function __construct() {
+        $this->webhook = new WebhookEvent();
     }
 
 
@@ -23,7 +24,8 @@ class WebhookCallRepository extends AppRepository {
 
         return (new static())
             ->numberOfTry($config['max_try'])
-            ->formatData($config['default_format']);
+            ->setSsl($config['ssl'])
+            ->responseType($config['response_format']);
     }
 
     public function numberOfTry(int $count) {
@@ -31,7 +33,12 @@ class WebhookCallRepository extends AppRepository {
         return $this;
     }
 
-    public function formatData(string $type = 'JSON') {
+    public function setSsl(bool $status) {
+        $this->webhook->ssl = $status;
+        return $this;
+    }
+
+    public function responseType(string $type = 'JSON') {
         $this->webhook->responseType = $type;
         return $this;
     }
@@ -56,9 +63,15 @@ class WebhookCallRepository extends AppRepository {
         return $this;
     }
 
+    public function extraHeader(array $headers) {
+        $this->webhook->headers = $headers;
+        return $this;
+    }
+
     public function dispatch(): void {
         $this->tokenExist();
         $this->urlExist();
+        //target handle default method in WebhookRepository
         dispatch($this->webhook);
     }
 

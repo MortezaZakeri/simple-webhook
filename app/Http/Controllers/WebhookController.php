@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 
-use App\Repositories\Webhook\WebhookCallRepository;
+use App\Repositories\Webhook\WebhookCall;
 use Illuminate\Http\Request;
 
 class WebhookController extends AppController {
@@ -11,6 +11,7 @@ class WebhookController extends AppController {
 
     public function __construct() {
         //check policies
+
     }
 
     public function myWebhooks(int $id = null) {
@@ -24,11 +25,13 @@ class WebhookController extends AppController {
      * check policies not exceed
      */
     public function create(Request $request) {
-        WebhookCallRepository::make()
-            ->addUrl('')
-            ->addToken('')
-            ->addVerb()
-            ->addPayload();
+
+        WebhookCall::make()
+            ->addUrl('http://localhost:8081/test')
+            ->addToken('test token')
+            ->addVerb('POST')
+            ->addPayload(['data' => '123456ABC'])
+            ->dispatch();
     }
 
     /**

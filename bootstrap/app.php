@@ -21,14 +21,17 @@ $app = new Laravel\Lumen\Application(
     dirname(__DIR__)
 );
 
+
+////////////////////// CONFIG FILES /////////////
+$app->configure('webhook');
+//$app->configure('cache');
+
+
  $app->withFacades();
 
  $app->withEloquent();
 
 
- ////////////////////// CONFIG FILES /////////////
-$app->configure('webhook');
-$app->configure('cache');
 
 /*
 |--------------------------------------------------------------------------

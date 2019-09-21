@@ -10,5 +10,7 @@ return [
     //maximum number of try for each end point
     'max_try' => 3,
     // format of data send from webhook server
-    'default_format' => 'JSON'
+    'response_format' => 'JSON',
+    // send request through ssl
+    'ssl' => false
 ];
