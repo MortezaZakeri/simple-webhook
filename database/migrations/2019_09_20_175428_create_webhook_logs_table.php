@@ -16,7 +16,6 @@ class CreateWebhookLogsTable extends Migration {
             $table->unsignedBigInteger('webhook_id');
             $table->unsignedTinyInteger('status_code')->default(0);
             $table->text('message')->nullable();
-            $table->uuid('user_id');
             $table->timestamps();
         });
     }

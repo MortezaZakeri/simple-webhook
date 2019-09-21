@@ -8,6 +8,7 @@ namespace App\Repositories\Core;
 
 
 use App\Interfaces\ExceptionLogInterface;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use App\Models\Exception as ExceptionModel;
@@ -34,8 +35,11 @@ class ExceptionDBLog implements ExceptionLogInterface {
             ]);
             return true;
         } catch (Exception $ex) {
-            // exception inside exception handler
-            Log::log('DB', $ex->getMessage());
+            //if cannot store exception in database , store in log file
+            $errorMessage = Carbon::now()->toDateTimeString() .
+                '::' . $ex->getMessage() .
+                '-' . $ex->getCode();
+            Log::info($errorMessage);
             return false;
         }
     }

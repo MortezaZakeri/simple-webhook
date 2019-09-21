@@ -15,10 +15,6 @@ class WebhookLog extends Model {
         'user_id',
     ];
 
-    // this webhook logs belongs to one user
-    public function user() {
-        return $this->belongsTo(User::class, 'user_id');
-    }
 
     // every logs belongs to one webhook
     public function webhook() {

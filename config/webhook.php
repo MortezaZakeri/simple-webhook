@@ -12,5 +12,9 @@ return [
     // format of data send from webhook server
     'response_format' => 'JSON',
     // send request through ssl
-    'ssl' => false
+    'ssl' => false,
+    // maximum seconds try
+    'timeout' => 10,
+    // number of parallel request
+    'concurrency' => 10
 ];

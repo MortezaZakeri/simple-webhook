@@ -1,4 +1,7 @@
 <?php
+
+use Illuminate\Database\Eloquent\Collection;
+
 /**
  * User: MB
  * Date: 9/20/2019
@@ -6,9 +9,15 @@
 
 namespace App\Repositories\Webhook;
 
+use App\Models\Webhook;
+use App\Models\WebhookLog;
 use Exception;
 use App\Repositories\AppRepository;
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\EachPromise;
+use GuzzleHttp\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use GuzzleHttp\Promise;
 
 class WebhookEvent extends AppRepository {
 
@@ -28,11 +37,14 @@ class WebhookEvent extends AppRepository {
      */
     public $numberOfTry;
 
+    /*  Maximum time to wait for endpoint in seconds , default in config 10s*/
+    public $timeout;
+
     /** @var string , expected request type by endpoint default JSON , can override */
     public $responseType;
 
     /** @var string , HTTP verb */
-    public $method;
+    public $verb;
 
     /** @var string , client side token ,stored in webhooks model */
     public $token;
@@ -46,22 +58,59 @@ class WebhookEvent extends AppRepository {
     /** @var Guzzle Http Response | null */
     private $response;
 
+    /* @var Collection , list of all webhooks include token and urls */
+    public $endpoints = [];
+
+    /* @var int , number of concurrence request , default is 10 in config file */
+    public $concurrency;
+
     public function handle() {
         // guzzle request failed afterr
-        $timeOut = 10;
+
         try {
             // guzzle http client
             $client = app(Client::class);
-            $this->response = $client->request($this->method, $this->url, [
-                'timeout' => $timeOut,
-                'body' => json_encode($this->payload),
-                'verify' => $this->ssl,
-                'headers' => $this->headers,
+            $promises = (function () use ($client) {
+                foreach ($this->endpoints as $endpoint) {
+                    $data = $this->makeDataOption($endpoint);
+                    yield $client
+                        ->requestAsync($endpoint->verb, $endpoint->url, $data)
+                        ->then(function (Response $response) use ($endpoint) {
+                            (new WebhookLogRepository)->log(
+                                $endpoint->id,
+                                $response->getStatusCode(),
+                                $response->getBody()->getContents()
+                            );
+                            return $response;
+                        });
+                }
+            })();
+
+            $promisesResult = new EachPromise($promises, [
+                'concurrency' => $this->concurrency,
+                'fulfilled' => function ($responses, $pending) {
+
+                },
+                'rejected' => function () {
+
+                }
             ]);
+            $promisesResult->promise()->wait();
 
         } catch (Exception $exception) {
             $this->handleException(__METHOD__, $exception, "Cannot call end point $this->url", 5);
         }
+    }
+
+    private function makeDataOption(Webhook $endpoint): array {
+        return [
+            'timeout' => $this->timeout,
+            'body' => json_encode($this->payload),
+            'verify' => $this->ssl,
+            'headers' => $this->headers,
+            'token' => $endpoint->token,
+            'id' => $endpoint->id
+        ];
     }
 
 }

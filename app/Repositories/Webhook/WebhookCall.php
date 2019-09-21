@@ -6,6 +6,7 @@
 
 namespace App\Repositories\Webhook;
 
+use App\Models\Webhook;
 use App\Repositories\AppRepository;
 
 class WebhookCall extends AppRepository {
@@ -24,7 +25,9 @@ class WebhookCall extends AppRepository {
 
         return (new static())
             ->numberOfTry($config['max_try'])
+            ->setTimeout($config['timeout'])
             ->setSsl($config['ssl'])
+            ->setConcurrency($config['concurrency'])
             ->responseType($config['response_format']);
     }
 
@@ -33,8 +36,18 @@ class WebhookCall extends AppRepository {
         return $this;
     }
 
+    public function setTimeout(int $seconds) {
+        $this->webhook->timeout = $seconds;
+        return $this;
+    }
+
     public function setSsl(bool $status) {
         $this->webhook->ssl = $status;
+        return $this;
+    }
+
+    public function setConcurrency(int $count) {
+        $this->webhook->concurrency = $count;
         return $this;
     }
 
@@ -43,18 +56,33 @@ class WebhookCall extends AppRepository {
         return $this;
     }
 
-    public function addUrl(string $url) {
-        $this->webhook->url = $url;
-        return $this;
-    }
 
     public function addVerb(string $method = 'POST') {
-        $this->webhook->method = $method;
+        $this->webhook->verb = $method;
         return $this;
     }
 
-    public function addToken(string $token) {
-        $this->webhook->token = $token;
+    public function addEndpoints(string $token, string $url) {
+        $this->webhook->endpoints[] = [
+            'token' => $token,
+            'url' => $url
+        ];
+        return $this;
+    }
+
+    /**
+     * Lazy load webhooks collection form database
+     * @return WebhookCall
+     */
+    public function storedEndpoints() {
+
+        $endpoints = Webhook::cursor()->filter(function ($endpoint) {
+            return $endpoint;
+        });
+        foreach ($endpoints as $endpoint) {
+            $endpoint->verb = $endpoint->verb ?? $this->webhook->verb;
+            $this->webhook->endpoints [] = $endpoint;
+        }
         return $this;
     }
 
@@ -71,6 +99,7 @@ class WebhookCall extends AppRepository {
     public function dispatch(): void {
         $this->tokenExist();
         $this->urlExist();
+        $this->hasEndpoint();
         //target handle default method in WebhookRepository
         dispatch($this->webhook);
     }
@@ -91,6 +120,12 @@ class WebhookCall extends AppRepository {
      */
     private function urlExist() {
         if (!$this->webhook->url) {
+            // throw an exception
+        }
+    }
+
+    private function hasEndpoint() {
+        if (empty($this->webhook->endpoints)) {
             // throw an exception
         }
     }
