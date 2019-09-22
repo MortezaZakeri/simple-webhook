@@ -25,4 +25,14 @@ class Webhook extends Model {
         return $this->hasMany(WebhookLog::class, 'webhook_id');
     }
 
+    /**
+     * API link in web.php reference
+     * @return string
+     */
+    public function path(): string {
+        return "api/webhook";
+    }
+
+
+
 }

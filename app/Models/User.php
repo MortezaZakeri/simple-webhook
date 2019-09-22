@@ -32,4 +32,24 @@ class User extends CustomModel implements AuthenticatableContract, AuthorizableC
     public function webhooks() {
         return $this->hasMany(Webhook::class, 'user_id');
     }
+
+    /**
+     * user allowed to add a new webhook , not exceed
+     * @return bool
+     */
+    public function canHaveWebhook(): bool {
+        if (!isset($this)) {
+            return false;
+        }
+        return $this->webhook_limit > $this->webhooks()->count();
+    }
+
+    /**
+     * add extra webhook ticket to create some
+     * @param int
+     * @return void
+     */
+    public function addToWebhookLimit(int $count): void {
+        $this->increment('webhook_limit', $count);
+    }
 }

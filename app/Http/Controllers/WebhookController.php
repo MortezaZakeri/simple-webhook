@@ -4,14 +4,25 @@ namespace App\Http\Controllers;
 
 
 use App\Repositories\Webhook\WebhookCall;
+use App\Repositories\Webhook\WebhookRepository;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Validation\ValidationException;
+
 
 class WebhookController extends AppController {
 
 
-    public function __construct() {
+    /**
+     * @var WebhookRepository
+     */
+    private $repository;
+
+    public function __construct(WebhookRepository $repository) {
         //check policies
 
+        $this->repository = $repository;
     }
 
     public function myWebhooks(int $id = null) {
@@ -21,17 +32,26 @@ class WebhookController extends AppController {
     /**
      * create a new webhook for client
      * @param Request $request
-     * @return void heck policies
      * check policies not exceed
+     * @return JsonResponse
+     * @throws ValidationException
      */
     public function create(Request $request) {
 
-         WebhookCall::make()
-            //->addEndpoints('http://localhost:8081/test', 'test token')
-            ->storedEndpoints()
-            ->addVerb('POST')
-            ->addPayload(['data' => '123456ABC'])
-            ->dispatch();
+        if (!Gate::allows('NEW_WEBHOOK_ALLOWED', 1)) {
+            return $this->insufficient();
+        }
+        $this->validate($request, [
+            'token' => 'required|string|min:5|max:2048',
+            'url' => 'required|string|min:8|max:2048',
+        ]);
+        $created = $this->repository->create($this->user(), $request['url'], $request['token']);
+        if (isset($created)) {
+            return $this->success(true, "Webhook has been created", [
+                'data' => $created
+            ], 201);
+        }
+        return $this->error("Cannot register a webhook", [], 400);
     }
 
     /**
@@ -52,5 +72,18 @@ class WebhookController extends AppController {
      */
     public function delete(Request $request) {
 
+    }
+
+    /**
+     * Call a webhook by payload
+     * @return void
+     */
+    public function call(): void {
+        WebhookCall::make()
+            //->addEndpoints('http://localhost:8081/test', 'test token')
+            ->storedEndpoints()
+            ->addVerb('POST')
+            ->addPayload(['data' => '123456ABC'])
+            ->dispatch();
     }
 }
