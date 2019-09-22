@@ -62,11 +62,11 @@ class WebhookCall extends AppRepository {
         return $this;
     }
 
-    public function addEndpoints(string $token, string $url) {
-        $this->webhook->endpoints[] = [
-            'token' => $token,
-            'url' => $url
-        ];
+    public function addEndpoints(int $id) {
+        $webhook = Webhook::find($id);
+        if (isset($webhook)) {
+            $this->webhook->endpoints[] = $webhook;
+        }
         return $this;
     }
 

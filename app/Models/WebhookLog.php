@@ -13,6 +13,7 @@ class WebhookLog extends Model {
         'status_code',
         'message',
         'user_id',
+        'status'
     ];
 
 

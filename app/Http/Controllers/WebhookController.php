@@ -27,6 +27,10 @@ class WebhookController extends AppController {
 
     public function myWebhooks(int $id = null) {
 
+        $webhooks = $this->repository->get($this->user(), $id);
+        return $this->success($webhooks, 'Webhooks list', [
+            'count' => sizeof($webhooks)
+        ], 200);
     }
 
     /**
@@ -76,14 +80,22 @@ class WebhookController extends AppController {
 
     /**
      * Call a webhook by payload
+     * @param int|null $id
      * @return void
      */
-    public function call(): void {
-        WebhookCall::make()
-            //->addEndpoints('http://localhost:8081/test', 'test token')
-            ->storedEndpoints()
-            ->addVerb('POST')
-            ->addPayload(['data' => '123456ABC'])
-            ->dispatch();
+    public function call(?int $id): void {
+        if ($id) {
+            WebhookCall::make()
+                ->addVerb('POST')
+                ->addPayload(['data' => '123456ABC'])
+                ->addEndpoints($id)
+                ->dispatch();
+        } else {
+            WebhookCall::make()
+                ->addVerb('POST')
+                ->addPayload(['data' => '123456ABC'])
+                ->storedEndpoints()
+                ->dispatch();
+        }
     }
 }

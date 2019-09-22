@@ -14,8 +14,12 @@
 
 $router->group(['prefix' => 'api'], function ($router) {
 
+    $router->get('webhook/call/[{id}]', 'WebhookController@call');
+
     $router->get('webhook', 'WebhookController@myWebhooks');
 
     $router->post('webhook', 'WebhookController@create');
+
+
 
 });

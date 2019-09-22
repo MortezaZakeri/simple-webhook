@@ -75,29 +75,39 @@ class WebhookEvent extends AppRepository {
             // guzzle http client
             $client = app(Client::class);
             $promises = (function () use ($client) {
+
                 foreach ($this->endpoints as $endpoint) {
                     $data = $this->makeDataOption($endpoint);
                     yield $client
                         ->requestAsync($endpoint->verb, $endpoint->url, $data)
                         ->then(function (Response $response) use ($endpoint) {
-                            (new WebhookLogRepository)->log(
-                                $endpoint->id,
+                            $response->webhook = $endpoint->toArray();
+                            $this->logResponse(
+                                $response->webhook->id,
                                 $response->getStatusCode(),
-                                $response->getBody()->getContents()
-                            );
-                            return $response;
+                                $response->getBody()->getContents(),
+                                'SUCCEED');
+
+                        })->otherwise(function (Exception $reject) use ($endpoint) {
+                            $reject->webhook = $endpoint->toArray();
+                            $this->logResponse(
+                                $reject->webhook['id'],
+                                $reject->getCode(),
+                                $reject->getMessage(),
+                                'FAILED');
                         });
                 }
             })();
 
             $promisesResult = new EachPromise($promises, [
                 'concurrency' => $this->concurrency,
-                'fulfilled' => function ($responses, $pending) use ($status) {
+                'fulfilled' => function ($response, $pending, $result) use ($status, $promises) {
                     $status['succeed']++;
                 },
-                'rejected' => function () use ($status) {
+                'rejected' => function ($response, $pending, $result) use ($status, $promises) {
                     $status['failed']++;
-                }
+                },
+
             ]);
             $promisesResult->promise()->wait();
 
@@ -116,6 +126,10 @@ class WebhookEvent extends AppRepository {
             'token' => $endpoint->token,
             'id' => $endpoint->id
         ];
+    }
+
+    private function logResponse($webhookId, $code, string $body, string $status) {
+        (new WebhookLogRepository())->log($webhookId, $code, $body, $status);
     }
 
 }
