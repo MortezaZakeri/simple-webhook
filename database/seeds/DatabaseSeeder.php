@@ -11,11 +11,13 @@ class DatabaseSeeder extends Seeder {
      */
     public function run() {
         $env = getenv('APP_ENV');
+        DB::transaction(function () use ($env) {
 
-        if ($env == 'local' || $env == 'testing') {
-            $this->call(UserSeeder::class);
-            $this->call(WebhookSeeder::class);
-            $this->call(WebhookLogSeeder::class);
-        }
+            if ($env == 'local' || $env == 'testing') {
+                $this->call(UserSeeder::class);
+                $this->call(WebhookSeeder::class);
+                $this->call(WebhookLogSeeder::class);
+            }
+        });
     }
 }

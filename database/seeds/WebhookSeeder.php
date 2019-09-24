@@ -12,14 +12,10 @@ class WebhookSeeder extends Seeder {
      */
     public function run() {
         $users = User::all();
-        $webhooks = [];
         foreach ($users as $user) {
-            $webhooks[] = factory(Webhook::class)->make(['user_id' => $user->id])->toArray();
+            $webhooks = factory(Webhook::class,20)->make(['user_id' => $user->id])->toArray();
+            Webhook::insert($webhooks);
         }
 
-        try {
-            Webhook::insert($webhooks);
-        } catch (Exception $exception) {
-        }
     }
 }

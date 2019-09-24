@@ -3,6 +3,7 @@
 use App\Models\WebhookLog;
 use Illuminate\Database\Seeder;
 
+
 class WebhookLogSeeder extends Seeder {
     /**
      * Run the database seeds.
@@ -10,7 +11,8 @@ class WebhookLogSeeder extends Seeder {
      * @return void
      */
     public function run() {
-        $logs = factory(WebhookLog::class, 1000)->make();
+
+        $logs = factory(WebhookLog::class, 120)->make();
         try {
             WebhookLog::insert($logs->toArray());
         } catch (Exception $exception) {

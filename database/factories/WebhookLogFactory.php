@@ -12,13 +12,12 @@
 */
 
 
-use App\Models\Webhook;
 use App\Models\WebhookLog;
 
 
 $factory->define(WebhookLog::class, function (Faker\Generator $faker) {
     return [
-        'webhook_id' => random_int(1, 300),
+        'webhook_id' => random_int(1, 3),
         'status_code' => $faker->randomKey([200, 400, 404, 500]),
         'message' => $faker->text
     ];

@@ -12,14 +12,14 @@
 */
 
 
-$router->group(['prefix' => 'api'], function ($router) {
+$router->group(['prefix' => 'api', 'middleware' => 'auth'], function ($router) {
+
+    $router->post('webhook/test', 'WebhookController@triggerAll');
 
     $router->get('webhook/call/[{id}]', 'WebhookController@call');
 
     $router->get('webhook', 'WebhookController@myWebhooks');
 
     $router->post('webhook', 'WebhookController@create');
-
-
 
 });

@@ -49,6 +49,9 @@ trait ResponseHandler {
     public function insufficient(string $message = 'Insufficient credit', int $code = 403) {
         return $this->response(['message' => $message], $code);
     }
+    public function wrongParameters(string $message = 'Wrong parameters in query', int $code = 422) {
+        return $this->response(['message' => $message], $code);
+    }
 
     private function response(array $payload, $code) {
         return response()->json($payload, $code);

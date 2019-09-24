@@ -19,7 +19,7 @@ $factory->define(Webhook::class, function (Faker\Generator $faker) {
     return [
         'token' => $faker->text,
         'url' => $faker->url,
-        'verb' => $faker->randomKey(['POST', 'GET']),
+        'verb' => $faker->randomElement(['POST', 'GET']),
         'user_id' => $faker->uuid,
     ];
 });

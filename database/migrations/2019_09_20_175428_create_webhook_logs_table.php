@@ -14,7 +14,7 @@ class CreateWebhookLogsTable extends Migration {
         Schema::create('webhook_logs', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('webhook_id');
-            $table->unsignedTinyInteger('status_code')->default(0);
+            $table->unsignedInteger('status_code')->default(0);
             $table->string('status')->nullable(); // FAILED , SUCCEED
             $table->text('message')->nullable();
             $table->timestamps();

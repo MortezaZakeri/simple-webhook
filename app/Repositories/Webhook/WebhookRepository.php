@@ -20,15 +20,15 @@ class WebhookRepository extends AppRepository {
      * @param User $user
      * @param string $url
      * @param string $token
-     * @param string $method
+     * @param string $verb
      * @return Webhook|null
      */
-    public function create(User $user, string $url, string $token, string $method = 'POST'): ?Webhook {
+    public function create(User $user, string $url, string $token, string $verb = 'POST'): ?Webhook {
 
         try {
             return Webhook::updateOrCreate(
-                ['url' => $url, 'user_id' => $user->id, 'verb' => $method],
-                ['url' => $url, 'user_id' => $user->id, 'verb' => $method, 'token' => $token]
+                ['url' => $url, 'user_id' => $user->id, 'verb' => $verb],
+                ['url' => $url, 'user_id' => $user->id, 'verb' => $verb, 'token' => $token]
             );
         } catch (QueryException $exception) {
             $this->handleException(__FUNCTION__, $exception, 'Cannot register a new webhook', 4);

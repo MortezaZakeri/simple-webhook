@@ -10,14 +10,12 @@ use Illuminate\Database\Eloquent\Collection;
 namespace App\Repositories\Webhook;
 
 use App\Models\Webhook;
-use App\Models\WebhookLog;
 use Exception;
 use App\Repositories\AppRepository;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\EachPromise;
 use GuzzleHttp\Psr7\Response;
-use Psr\Http\Message\ResponseInterface;
-use GuzzleHttp\Promise;
+
 
 class WebhookEvent extends AppRepository {
 
@@ -83,13 +81,14 @@ class WebhookEvent extends AppRepository {
                         ->then(function (Response $response) use ($endpoint) {
                             $response->webhook = $endpoint->toArray();
                             $this->logResponse(
-                                $response->webhook->id,
+                                $response->webhook['id'],
                                 $response->getStatusCode(),
                                 $response->getBody()->getContents(),
                                 'SUCCEED');
 
                         })->otherwise(function (Exception $reject) use ($endpoint) {
                             $reject->webhook = $endpoint->toArray();
+
                             $this->logResponse(
                                 $reject->webhook['id'],
                                 $reject->getCode(),
@@ -129,6 +128,7 @@ class WebhookEvent extends AppRepository {
     }
 
     private function logResponse($webhookId, $code, string $body, string $status) {
+
         (new WebhookLogRepository())->log($webhookId, $code, $body, $status);
     }
 

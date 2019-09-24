@@ -47,24 +47,38 @@ class WebhookController extends AppController {
         }
         $this->validate($request, [
             'token' => 'required|string|min:5|max:2048',
-            'url' => 'required|string|min:8|max:2048',
+            'url' => 'required|url|min:8|max:2048',
         ]);
-        $created = $this->repository->create($this->user(), $request['url'], $request['token']);
+        $created = $this->repository
+            ->create($this->user(), $request['url'], $request['token'], $request['verb'] ?? null);
         if (isset($created)) {
-            return $this->success(true, "Webhook has been created", [
+            return $this->success(true, "Webhook has been created / updated", [
                 'data' => $created
             ], 201);
         }
         return $this->error("Cannot register a webhook", [], 400);
     }
 
-    /**
-     * Update specific webhook for client
-     * @param Request $request (only url and token)
-     * @return void
-     * check policies  belongs to me
-     */
-    public function update(Request $request) {
+
+    public function triggerAll(Request $request) {
+        //        /"payload": [ "any" , { "valid": "JSON" }]
+
+        $attributes = $this->validate($request, [
+            'payload' => 'required|array',
+            'payload.*' => 'required',
+        ]);
+        if (in_array('any', $payload = $attributes['payload']) && is_array($payload[1])) {
+
+            if ($payload[1]['valid'] == 'JSON' || $payload[1]['valid'] == 'json') {
+                WebhookCall::make()
+                    ->addVerb('POST')
+                    ->addPayload(['data' => '123456ABC'])
+                    ->clientEndpoints($this->user())
+                    ->dispatch();
+                return $this->success(true, 'Done', [], 200);
+            }
+        }
+        return $this->wrongParameters();
 
     }
 

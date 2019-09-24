@@ -6,8 +6,10 @@
 
 namespace App\Repositories\Webhook;
 
+use App\Models\User;
 use App\Models\Webhook;
 use App\Repositories\AppRepository;
+use Exception;
 
 class WebhookCall extends AppRepository {
 
@@ -79,12 +81,20 @@ class WebhookCall extends AppRepository {
         $endpoints = Webhook::cursor()->filter(function ($endpoint) {
             return $endpoint;
         });
-        foreach ($endpoints as $endpoint) {
-            $endpoint->verb = $endpoint->verb ?? $this->webhook->verb;
-            $this->webhook->endpoints [] = $endpoint;
-        }
+        $this->fillEndPoints($endpoints);
         return $this;
     }
+
+    public function clientEndpoints(User $user) {
+
+        $endpoints = Webhook::cursor()->where('user_id', $user->id)
+            ->filter(function ($endpoint) {
+                return $endpoint;
+            });
+        $this->fillEndPoints($endpoints);
+        return $this;
+    }
+
 
     public function addPayload($payload) {
         $this->webhook->payload = $payload;
@@ -97,8 +107,8 @@ class WebhookCall extends AppRepository {
     }
 
     public function dispatch(): void {
-        $this->tokenExist();
-        $this->urlExist();
+        //$this->tokenExist();
+        //$this->urlExist();
         $this->hasEndpoint();
         //target handle default method in WebhookRepository
         dispatch($this->webhook);
@@ -107,26 +117,56 @@ class WebhookCall extends AppRepository {
     /**
      * token filed to fire an endpoint
      * @return void
+     * @throws Exception
      */
     private function tokenExist() {
         if (!$this->webhook->token) {
             // throw an exception
+            $this->missingEx('token');
         }
     }
 
     /**
      * url filed to fire an endpoint
      * @return void
+     * @throws Exception
      */
     private function urlExist() {
         if (!$this->webhook->url) {
             // throw an exception
+            $this->missingEx('url');
         }
     }
 
+    /**
+     * desc
+     * @return void
+     * @throws Exception
+     */
     private function hasEndpoint() {
         if (empty($this->webhook->endpoints)) {
             // throw an exception
+            $this->missingEx('endpoints');
         }
+    }
+
+    /**
+     * @param $endpoints
+     */
+    private function fillEndPoints($endpoints): void {
+        foreach ($endpoints as $endpoint) {
+            $endpoint->verb = $endpoint->verb ?? $this->webhook->verb;
+            $this->webhook->endpoints [] = $endpoint;
+        }
+    }
+
+    /**
+     * desc
+     * @param string $item // missing item in request
+     * @return void
+     * @throws Exception
+     */
+    private function missingEx(string $item) {
+        throw  new Exception("Missing $item parameter");
     }
 }
