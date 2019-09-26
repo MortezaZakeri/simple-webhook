@@ -1,0 +1,138 @@
+{
+	"info": {
+		"_postman_id": "71e30649-9df6-490a-9917-d21b0d35cae4",
+		"name": "Webhook-sample",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Register a new webhook",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "email",
+						"value": "mz@test.com",
+						"type": "text"
+					},
+					{
+						"key": "password",
+						"value": "test123",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"token\":\"My second post\",\n\t\"url\":\"http://localhost:8080\",\n\t\"verb\":\"GET\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9876/api/webhook",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9876",
+					"path": [
+						"api",
+						"webhook"
+					]
+				},
+				"description": "token and valid url needed"
+			},
+			"response": []
+		},
+		{
+			"name": "Get client webhook",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "email",
+						"value": "mz@test.com",
+						"type": "text"
+					},
+					{
+						"key": "password",
+						"value": "test123",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:9876/api/webhook",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9876",
+					"path": [
+						"api",
+						"webhook"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Trigger client webhook",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					},
+					{
+						"key": "email",
+						"value": "mz@test.com",
+						"type": "text"
+					},
+					{
+						"key": "password",
+						"value": "test123",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"payload\": [ \"any\" , { \"valid\": \"JSON\" }]\r\n}"
+				},
+				"url": {
+					"raw": "http://localhost:9876/api/webhook/test",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "9876",
+					"path": [
+						"api",
+						"webhook",
+						"test"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"protocolProfileBehavior": {}
+}

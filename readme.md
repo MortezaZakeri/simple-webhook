@@ -22,5 +22,14 @@
  `php artisan database migrate` (create tables located in ase\migrations folder)
  `php artisan db:seed` (to create some fake data to test db located in database\seeds folder)
  
+ *for accessing api samples with post man import the file located in postman folder in `POSTMAN` application 
+ API links
+
+|  Endpoint               | Method    |  Description                 |
+|:------------------------|:----------|:-----------------------------|
+| api/webhook             | GET       |   get list of client webhook | 
+| api/webhook/test        | POST      |   Trigger all endpoints      | 
+| api/webhook/call/{id}   | GET       |   Call specific webhook by id| 
+| api/webhook/            | POST      |   Register a new webhook     | 
 
  
