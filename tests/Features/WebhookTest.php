@@ -109,13 +109,15 @@ class WebhookTest extends TestCase {
         $this->withoutExceptionHandling();
         //register a webhook for user
         $user = factory(User::class)->create();
-        $webhookObj = $this->createWebhook(null, [
+        $webhookObj = $this->actingAs($user)->createWebhook(null, [
             'user_id' => $user->id,
             'url' => 'http://localhost:8081/test'
         ]);
 
         //fire an event
-        $this->get($this->path() . "/call/{$webhookObj->id}");
+        $this->actingAs($user)
+            ->get($this->path() . "/call/{$webhookObj->id}")->seeStatusCode(200);
+        //dd($webhookObj->id);
         // see log in table
         $this->seeInDatabase('webhook_logs', [
             'webhook_id' => $webhookObj->id
@@ -124,21 +126,26 @@ class WebhookTest extends TestCase {
 
     /** @test */
     public function user_can_keep_track_of_webhooks_logs() {
-        $user = factory(User::class)->create();
-        $webhookObj = $this->createWebhook(null, ['user_id' => $user->id]);
+        $john = factory(User::class)->create();
+        $this->createWebhook(null, ['user_id' => $john->id]);
+
+        $response = $this->actingAs($john)->get($this->path())
+            ->seeStatusCode(200);
+        $this->assertNotEmpty($this->getContent($response)->data);
 
     }
 
     /** @test */
     public function user_cannot_see_other_users_webhooks() {
-    }
-
-    /** @test */
-    public function user_can_test_webhook_by_payload() {
-    }
-
-    /** @test */
-    public function user_can_trigger_own_registered_webhooks() {
+        $john = factory(User::class)->create();
+        $mike = factory(User::class)->create();
+        //john create a webhook
+        $this->createWebhook(null, ['user_id' => $john->id]);
+        //mike cannot see any webhook
+        $response = $this->actingAs($mike)
+            ->get($this->path())
+            ->seeStatusCode(200);
+        $this->assertEmpty($this->getContent($response)->data);
     }
 
 

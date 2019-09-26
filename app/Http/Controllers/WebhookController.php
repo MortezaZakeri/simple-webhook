@@ -25,7 +25,7 @@ class WebhookController extends AppController {
         $this->repository = $repository;
     }
 
-    public function myWebhooks(int $id = null) {
+    public function myWebhooks(Request $request,int $id = null) {
 
         $webhooks = $this->repository->get($this->user(), $id);
         return $this->success($webhooks, 'Webhooks list', [
@@ -79,16 +79,6 @@ class WebhookController extends AppController {
             }
         }
         return $this->wrongParameters();
-
-    }
-
-    /**
-     * Delete specific webhook for client
-     * @param Request $request
-     * @return void
-     * check policies  belongs to me
-     */
-    public function delete(Request $request) {
 
     }
 

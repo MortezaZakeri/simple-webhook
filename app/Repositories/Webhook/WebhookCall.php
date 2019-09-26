@@ -24,7 +24,6 @@ class WebhookCall extends AppRepository {
     public static function make(): self {
 
         $config = config('webhook');
-
         return (new static())
             ->numberOfTry($config['max_try'])
             ->setTimeout($config['timeout'])
